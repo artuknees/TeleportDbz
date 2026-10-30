@@ -1,0 +1,90 @@
+camera:
+  index: 0 # 0 = primera webcam. Probá `python src/main.py --list-cameras`
+  width: 1280
+  height: 720
+  fps: 30
+  backend: auto # auto (según el sistema) | dshow | msmf | avfoundation | v4l2 | any
+
+output:
+  virtual_camera: true # false = no publica cámara virtual (útil para probar)
+  vcam_backend: auto # auto = OBS Virtual Camera en Windows/Mac, v4l2loopback en Linux
+  mirror: false # espeja SOLO la salida; la detección usa la imagen original
+
+detection:
+  width: 640 # resolución a la que corren los modelos (más chico = más rápido)
+  max_fps: 30 # tope de frames de detección por segundo
+  min_confidence: 0.5
+  num_hands: 2
+  face_only_with_hand: true # busca cara/pose solo si hay una mano a la vista (ahorra CPU)
+
+gesture:
+  hold_frames: 8 # frames de detección seguidos con el gesto para disparar
+  cooldown_s: 2.0 # tiempo mínimo entre disparos (además hay que soltar el gesto)
+  # Forma de la mano (distancias relativas a la muñeca, ver src/gesture.py)
+  ext_pip_ratio: 1.15 # extendido: punta-muñeca > r * PIP-muñeca
+  ext_mcp_ratio: 1.6 #            y punta-muñeca > r * MCP-muñeca
+  flex_mcp_ratio: 1.35 # flexionado: punta-muñeca < r * MCP-muñeca
+  flex_pip_ratio: 1.0 #             o punta-muñeca < r * PIP-muñeca
+  together_ratio: 0.4 # juntos: distancia entre puntas < r * tamaño de palma
+  # Cerca de la frente: distancia punta-frente < r * distancia entre ojos.
+  # Es la "d" de la ventana de debug: tocate la frente, mirá la d y poné algo
+  # un poco mayor. Más chico = hay que apoyar los dedos más justo.
+  forehead_ratio: 0.55
+  pose_forehead_k: 1.0 # respaldo con pose: frente = ojos + k * (ojos - nariz)
+
+background:
+  countdown_s: 5 # al iniciar (y con B / F8): tiempo para salir de cuadro
+  beep: true # pitido en cada segundo y uno más agudo al terminar
+  frames: 30 # frames que se promedian
+  match_exposure:
+    true # corrige brillo/color del fondo (y sombras locales) para que
+    # empalme con el video en vivo (la webcam cambia la exposición sola)
+
+segmentation:
+  input_width: 512 # ancho al que se pasa la imagen al segmentador
+  low: 0.3 # confianza por debajo de esto = fondo
+  high: 0.7 # confianza por encima de esto = persona
+  # Las dos de abajo se pueden ajustar en vivo en la ventana de debug:
+  # 1 / 2 bajan/suben dilate_px, 3 / 4 bajan/suben feather_px (se muestran en pantalla).
+  dilate_px:
+    14 # agranda la máscara para tapar el contorno y el halo claro
+    # que la webcam genera alrededor tuyo (px del frame)
+  feather_px: 12 # suavizado de bordes (px del frame); queda por fuera de la silueta
+  temporal: 0.6 # peso del frame nuevo (1 = sin estabilización, más bajo = más estable)
+
+effects:
+  disappear_s: 0.4 # duración de la desaparición (0 = instantáneo)
+  appear_s: 0.4 # duración de la reaparición (misma animación en reversa)
+  direction: vertical # eje del estiramiento, blur y líneas: vertical | horizontal
+  flicker_cycles: 5 # cantidad de parpadeos
+  flicker_accel: 2.0 # >1 = los parpadeos se aceleran hacia el final
+  flicker_duty: 0.6 # fracción de cada ciclo con la silueta visible
+  flicker_off_alpha: 0.15
+  stretch_max: 0.35 # estiramiento a lo largo del eje al final (+35%)
+  squeeze_max: 0.6 # compresión en el otro eje al final (-60%: la silueta queda como un haz)
+  shift_px: 25 # sacudón aleatorio a lo largo del eje
+  motion_blur_px: 70 # largo máximo del motion blur
+  glitch_bands: 7 # bandas desplazadas por frame
+  glitch_shift_px: 45
+  speed_lines: 14 # líneas de velocidad por frame
+  speed_line_alpha: 0.7
+  flash_at: 0.7 # momento del destello (0..1 de la animación)
+  flash_width: 0.1
+  flash_intensity: 0.75
+  flash_color: [255, 245, 225] # BGR
+
+sound:
+  enabled: true
+  # Clip de DBZ recortado con `python trim_sound.py assets/teleportDbz.mp3`.
+  # Si falta, se usa assets/teleport.wav (sintético, se genera solo).
+  disappear: assets/teleportDbz.wav
+  appear: assets/teleportDbz.wav
+  volume: 1.0
+
+hotkeys: # globales (funcionan con el foco en Meet). Formato de pynput.
+  toggle: "<f9>"
+  recapture_background: "<f8>"
+
+logging:
+  level: INFO # DEBUG muestra también los gestos ignorados durante animaciones
+  native_logs: false # true = deja ver los avisos internos de MediaPipe (W0000 …)

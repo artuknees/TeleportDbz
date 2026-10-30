@@ -1,0 +1,11 @@
+# Python 3.13 (Windows 11). Versiones fijadas.
+# Nota: mediapipe depende de opencv-contrib-python; no instalar opencv-python
+# en paralelo porque pisan el mismo módulo cv2.
+mediapipe==1.2.0
+opencv-contrib-python==5.0.0.93
+numpy==2.5.4
+pyvirtualcam==0.15.0
+pynput==1.8.2
+PyYAML==6.0.3
+pygame==2.6.1
+pytest==9.2.0

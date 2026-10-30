@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.vscode
+models/
+config.local.yaml
+# El sonido sintético se genera solo al arrancar; los clips de assets/ sí se versionan.
+assets/teleport.wav
